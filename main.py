@@ -27,26 +27,20 @@ def tempera():
 def genetico():
     VISUALIZE = False
     REPEATED_TIME = 100
+    GENERATIONS = 100
+    GENERATIONS_SIZE = 10
 
     tsp_datas = tsp.import_all_tsp_data("./assets")
 
     # graph, data = tsp_datas[0]
-    # solution = algoritmo_genetico(data, 10, 100)
+    # solution = algoritmo_genetico(data, GENERATIONS_SIZE, GENERATIONS)
 
     for tsp_graph, tsp_data in tsp_datas:
         solutions = []
 
-        tam_geracoes = int(len(tsp_data)/3)
-
-        solution = algoritmo_genetico(tsp_data, tam_geracoes, 100)
+        solution = algoritmo_genetico(tsp_data, GENERATIONS_SIZE, GENERATIONS)
         solutions.append(solution)
         
-        # Visualiza as soluções
-        # visualize_table(solutions)
-
-        # if VISUALIZE:
-        #     for j in range(REPEATED_TIME):
-        #         visualize_graph(tsp_graph, solutions[j])
 
 if __name__ == "__main__":
     # tempera()
