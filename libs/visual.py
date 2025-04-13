@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def visualize_table(solutions: list[list[Node]]):
+def visualize_table(name, solutions: list[list[Node]], best_solution: int) -> None:
     """
     Visualizes a table of solutions for the TSP problem.
     Each row represents a solution, and each column represents a node in the solution path.
@@ -41,6 +41,10 @@ def visualize_table(solutions: list[list[Node]]):
             solution_set_length += 1
 
         had_repeated_nodes = len(solution) != is_first_last_equal
+
+        # Calculate percentage relative to the best solution
+        percentage_of_best = (sum_weights / best_solution) * 100
+
         table_data.append(
             [
                 num_nodes,
@@ -50,6 +54,7 @@ def visualize_table(solutions: list[list[Node]]):
                 variance_weights,
                 had_repeated_nodes,
                 is_first_last_equal,
+                percentage_of_best,
             ]
         )
 
@@ -61,11 +66,13 @@ def visualize_table(solutions: list[list[Node]]):
         "Variancia dos pesos",
         "Houve nos repetidos?",
         "O primeiro e o ultimo no sao iguais?",
+        "Porcentagem em relacao a melhor solucao",
     ]
 
     # Create DataFrame
     df = pd.DataFrame(table_data, columns=column_labels)
-    df.to_csv('./output/solutions.csv', index=False)
+    df.to_csv(f"./output/{name}_data.csv", index=False)
+
 
 def visualize_graph(graph: nx.Graph, solution: list[Node]):
     """
