@@ -7,8 +7,9 @@ from libs.genetico import algoritmo_genetico
 def tempera():
     VISUALIZE = False
     REPEATED_TIME = 100
+    LIMIT_DATA = 2
 
-    tsp_datas = tsp.import_all_tsp_data("./assets")
+    tsp_datas = tsp.import_all_tsp_data("./assets", LIMIT_DATA)
     best_datas = tsp.import_all_tsp_solutions("./assets")
 
     for tsp_name, tsp_info in tsp_datas.items():
@@ -33,8 +34,9 @@ def genetico():
     REPEATED_TIME = 100
     GENERATIONS = 100
     GENERATIONS_SIZE = 10
+    LIMIT_DATA = 2
 
-    tsp_datas = tsp.import_all_tsp_data("./assets")
+    tsp_datas = tsp.import_all_tsp_data("./assets", LIMIT_DATA)
     best_datas = tsp.import_all_tsp_solutions("./assets")
 
     for tsp_name, tsp_info in tsp_datas.items():

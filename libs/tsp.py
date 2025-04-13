@@ -38,7 +38,9 @@ def load_tsp_data(file_path: str):
     return graph, nodes
 
 
-def import_all_tsp_data(file_path: str) -> dict[str, tuple[Graph, list[Node]]]:
+def import_all_tsp_data(
+    file_path: str, limit=-1
+) -> dict[str, tuple[Graph, list[Node]]]:
     # Pega todos os arquivos .astp do diretório
     files = [f for f in listdir(file_path) if f.endswith(".atsp")]
     data: dict[str, tuple[Graph, list[Node]]] = {}
@@ -52,7 +54,8 @@ def import_all_tsp_data(file_path: str) -> dict[str, tuple[Graph, list[Node]]]:
 
     # Ordena os arquivos pela quantidade de nós
     data = dict(sorted(data.items(), key=lambda x: len(x[1][1])))
-
+    if limit > 0:
+        data = dict(list(data.items())[:limit])
     return data
 
 
