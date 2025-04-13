@@ -1,11 +1,29 @@
 from libs.tsp import Node
-import numpy as np
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def clear_tables():
+    """
+    Limpa os arquivos de saida
+    """
 
-def visualize_table(name, solutions: list[list[Node]], best_solution: int) -> None:
+    try:
+        import os
+
+        for file in os.listdir("./output"):
+            if file.endswith(".csv"):
+                os.remove(os.path.join("./output", file))
+    except Exception as e:
+        print(f"Erro ao limpar os arquivos de saida: {e}")
+
+
+def visualize_table(
+    name,
+    solutions: list[tuple[list[Node]]],
+    best_solution: int,
+    headers: list[str] = [],
+) -> None:
     """
     Visualizes a table of solutions for the TSP problem.
     Each row represents a solution, and each column represents a node in the solution path.
@@ -13,9 +31,11 @@ def visualize_table(name, solutions: list[list[Node]], best_solution: int) -> No
 
     # Prepare table data
     table_data = []
-    for solution in solutions:
-        weights: list[float] = []
+    for solution_data in solutions:
+        solution = solution_data[0]
 
+        weights: list[float] = []
+        
         for i in range(len(solution) - 1):
             node = solution[i]
             next_node = solution[i + 1]
@@ -31,9 +51,6 @@ def visualize_table(name, solutions: list[list[Node]], best_solution: int) -> No
 
         num_nodes = len(solution)
         sum_weights = sum(weights)
-        mean_weights = np.mean(weights)
-        std_dev_weights = np.std(weights)
-        variance_weights = np.var(weights)
         is_first_last_equal = solution[0] == solution[-1]
 
         solution_set_length = len(set(solution))
@@ -41,37 +58,36 @@ def visualize_table(name, solutions: list[list[Node]], best_solution: int) -> No
             solution_set_length += 1
 
         had_repeated_nodes = len(solution) != is_first_last_equal
+        # Calcula a porcentagem em relacao a melhor solucao, quanto menor, melhor (sendo 0, é igual a melhor solucao)
+        percentage_of_best = ((sum_weights - best_solution) / best_solution) * 100
 
-        # Calculate percentage relative to the best solution
-        percentage_of_best = (sum_weights / best_solution) * 100
+        other_data = solution_data[1:] if len(solution_data) > 1 else []
 
         table_data.append(
             [
                 num_nodes,
                 sum_weights,
-                mean_weights,
-                std_dev_weights,
-                variance_weights,
                 had_repeated_nodes,
                 is_first_last_equal,
                 percentage_of_best,
+                *other_data,
             ]
         )
 
     column_labels = [
         "Numero de nos",
         "Soma dos pesos",
-        "Media dos pesos",
-        "Desvio padrao dos pesos",
-        "Variancia dos pesos",
         "Houve nos repetidos?",
         "O primeiro e o ultimo no sao iguais?",
-        "Porcentagem em relacao a melhor solucao",
+        "Porcentagem em relacao a melhor solucao (em %)",
+        *headers,
     ]
 
     # Create DataFrame
     df = pd.DataFrame(table_data, columns=column_labels)
     df.to_csv(f"./output/{name}_data.csv", index=False)
+
+    print(f"Dados para o problema {name} salvos em {name}_data.csv")
 
 
 def visualize_graph(graph: nx.Graph, solution: list[Node]):

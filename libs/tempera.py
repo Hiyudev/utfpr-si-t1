@@ -73,4 +73,4 @@ def tempera_simulada(nodes: list[Node]):
 
         t += 1
 
-    return solution
+    return (solution, t)

@@ -7,5 +7,5 @@
 
 # Execute
 1. Edit `VISUALIZE` variable in `main.py`, if you want to visualize algorithm "decisions" 
-2. `make` or `python3 main.py`
-3. Right-click on `solutions.csv` and select `Open in Data Wrangler"
+2. `./run.sh {ARGS}` or `python3 main.py {ARGS}`, with `{ARGS}` being "g" or "t" for "genetico" or "tempera" algorithm 
+3. Right-click on any `.csv` file and click `Open in Data Wrangler"
