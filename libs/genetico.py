@@ -1,34 +1,7 @@
 import numpy as np
 from random import sample, randint
 from libs.tsp import Node
-
-
-def get_cidade(nodes: list[Node], id: int) -> Node:
-    for node in nodes:
-        if node.id == id:
-            return node
-
-
-def calc_custo(nodes: list[Node], ordem: list[int]) -> float:
-    custo_total = 0.0
-
-    for i in range(len(ordem) - 1):
-        cidade_atual = get_cidade(nodes, ordem[i])
-
-        for vizinho, custo in cidade_atual.neighbors:
-            if vizinho.id == ordem[i + 1]:
-                custo_total += custo
-                break
-
-    ultima_cidade = get_cidade(nodes, ordem[-1])
-
-    for vizinho, custo in ultima_cidade.neighbors:
-        if vizinho.id == ordem[0]:
-            custo_total += custo
-            break
-
-    return custo_total
-
+from libs.utils import get_total_distance, formalize_solution
 
 def funcao_adaptacao(geracao: list[tuple[list[int], float]]):
     scores = []
@@ -58,7 +31,7 @@ def func_reproducao(
         if cidade not in nova_ordem:
             nova_ordem.append(cidade)
 
-    custo = calc_custo(nodes, nova_ordem)
+    custo = get_total_distance(nodes, nova_ordem)
     return (nova_ordem, custo)
 
 
@@ -66,7 +39,7 @@ def mutacao(nodes: list[Node], solucao: tuple[list:int, float]):
     ordem = solucao[0][:]
     i1, i2 = sample(range(len(ordem)), 2)
     ordem[i1], ordem[i2] = ordem[i2], ordem[i1]
-    custo = calc_custo(nodes, ordem)
+    custo = get_total_distance(nodes, ordem)
     return (ordem, custo)
 
 
@@ -90,12 +63,7 @@ def crossover(nodes: list[Node], geracao: list[tuple[list[int], float]], probs: 
     return nova_geracao
 
 
-def get_nodes(nodes, solucao: tuple[list:int, float]) -> list[Node]:
-    solucao_final = []
-    for cidade_id in solucao[0]:
-        solucao_final.append(get_cidade(nodes, cidade_id))
 
-    return solucao_final
 
 
 def algoritmo_genetico(nodes: list[Node], tam_populacao: int, n_geracoes: int):
@@ -109,7 +77,7 @@ def algoritmo_genetico(nodes: list[Node], tam_populacao: int, n_geracoes: int):
         # Solucao = (ordem de visita, custo total)
         solucao: tuple[list[int], float] = [
             ordem_aleatoria,
-            calc_custo(nodes, ordem_aleatoria),
+            get_total_distance(nodes, ordem_aleatoria),
         ]
         populacao_inicial.append(solucao)
 
@@ -130,5 +98,5 @@ def algoritmo_genetico(nodes: list[Node], tam_populacao: int, n_geracoes: int):
         geracao = nova_geracao
 
     print(melhor_solucao)
-    nodes_solucao_final = get_nodes(nodes, melhor_solucao)
+    nodes_solucao_final = formalize_solution(nodes, melhor_solucao[0])
     return (nodes_solucao_final,)

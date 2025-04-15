@@ -118,28 +118,17 @@ def visualize_graph(graph: nx.Graph, solution: list[Node]):
     plt.figure()
     plt.title("TSP Solution")
 
-    visualizing_nodes: list[Node] = []
-    for i, node in enumerate(solution):
-        visualizing_nodes.append(node)
+    visualizing_nodes: list[Node] = [node.id for node in solution]
+    mapped_edge_list = list(nx.utils.pairwise(visualizing_nodes))
 
-        mapped_visualizing_nodes = [node.id for node in visualizing_nodes]
-        mapped_edge_list = list(nx.utils.pairwise(mapped_visualizing_nodes))
+    nx.draw_networkx_edges(vanity_graph, pos, edge_color="blue", width=0.2)
+    nx.draw_networkx(
+        graph,
+        pos,
+        with_labels=True,
+        edgelist=mapped_edge_list,
+        edge_color="red",
+        width=1,
+    )
 
-        plt.clf()
-        plt.title(f"TSP Solution - Step {i+1} of {len(solution)}")
-
-        nx.draw_networkx_edges(vanity_graph, pos, edge_color="blue", width=0.2)
-        nx.draw_networkx(
-            graph,
-            pos,
-            with_labels=True,
-            edgelist=mapped_edge_list,
-            edge_color="red",
-            width=1,
-        )
-
-        plt.draw()
-        plt.waitforbuttonpress()
-
-    plt.waitforbuttonpress()
-    plt.close()
+    plt.show()
