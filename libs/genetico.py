@@ -85,6 +85,8 @@ def algoritmo_genetico(nodes: list[Node], tam_populacao: int, n_geracoes: int):
 
     melhor_solucao = min(geracao, key=lambda x: x[1])
 
+    geracao_melhor_solucao = 0
+
     # Gerações são um conjunto de tam_populacao de soluções
     for i in range(n_geracoes):
         probabilidades = funcao_adaptacao(geracao)
@@ -93,10 +95,10 @@ def algoritmo_genetico(nodes: list[Node], tam_populacao: int, n_geracoes: int):
         melhor_geracao = min(geracao, key=lambda x: x[1])
 
         if melhor_geracao[1] < melhor_solucao[1]:
+            geracao_melhor_solucao = i
             melhor_solucao = melhor_geracao
 
         geracao = nova_geracao
 
-    print(melhor_solucao)
     nodes_solucao_final = formalize_solution(nodes, melhor_solucao[0])
-    return (nodes_solucao_final,)
+    return (nodes_solucao_final, melhor_solucao[0], melhor_solucao[1], geracao_melhor_solucao)
