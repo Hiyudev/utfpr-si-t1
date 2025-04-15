@@ -24,7 +24,8 @@ def tempera():
 
         solutions: list[tuple[list[tsp.Node], int]] = []
         for i in range(REPEATED_TIME):
-            solution = tempera_simulada(tsp_data)
+            MAXIMUM_ITERATIONS = len(tsp_data)
+            solution = tempera_simulada(tsp_data, MAXIMUM_ITERATIONS)
             solutions.append(solution)
 
         # Visualiza as soluções
