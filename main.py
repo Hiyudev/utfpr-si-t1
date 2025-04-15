@@ -54,12 +54,38 @@ def genetico():
         tsp_solution = best_datas[tsp_name]
 
         solutions = []
+        melhor_iteracao = 0
+        melhor_custo = -1
+
         for i in range(REPEATED_TIME):
-            solution = algoritmo_genetico(tsp_data, GENERATIONS_SIZE, GENERATIONS)
-            solutions.append(solution)
+            solution, caminho, custo, geracao = algoritmo_genetico(tsp_data, GENERATIONS_SIZE, GENERATIONS)
+
+            if custo < melhor_custo or melhor_custo == -1:
+                melhor_custo = custo
+                melhor_iteracao = i
+                melhor_caminho = caminho
+            
+            # Novas colunas para o csv 
+            solutions.append((solution,
+                              REPEATED_TIME,
+                              GENERATIONS,
+                              GENERATIONS_SIZE,
+                             " -> ".join(map(str, caminho)), 
+                             custo, 
+                             geracao))
+            
+            extra_headers = ["Número de execuções do algoritmo", 
+                             "Número de gerações executadas", 
+                             "Tamanho de cada geração",
+                             "Caminho da solução encontrada", 
+                             "Custo da solução", 
+                             "Geração em que a melhor solução foi encontrada"]
+
+        # 
+        print(f"Melhor custo encontrado: {melhor_custo} na execução de número {melhor_iteracao}.")
 
         # Visualiza as soluções
-        visualize_table(tsp_name, solutions, tsp_solution)
+        visualize_table(tsp_name, solutions, tsp_solution, headers=extra_headers)
 
         if VISUALIZE:
             for j in range(REPEATED_TIME):
