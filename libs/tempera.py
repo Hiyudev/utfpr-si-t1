@@ -1,11 +1,10 @@
 from random import random, sample
-from math import exp, isclose
-from libs.tsp import Node
-from libs.utils import get_total_distance, formalize_solution
+from numpy import exp, isclose
+from libs.utils import get_total_distance
 
 
 def funcao_tempo_temperatura(
-    t: int, n: int, temperatura_inicial=100, temperatura_final=5
+    t: int, n: int, temperatura_inicial, temperatura_final
 ) -> float:
     """
     Funcao que calcula a temperatura em funcao de um dado tempo
@@ -23,55 +22,70 @@ def funcao_tempo_temperatura(
     return temperatura
 
 
-def funcao_objetivo(nodes: list[Node], order: list[int]) -> float:
+def funcao_objetivo(nodes: list[list[int]], order: list[int]) -> float:
     """
     Funcao que calcula o valor da funcao objetivo
     """
 
     # Calcula o custo total da solucao
     score = get_total_distance(nodes, order)
-
     return score
 
 
-def tempera_simulada(nodes: list[Node], max_t: int):
+def tempera_simulada(nodes: list[list[int]], parameters: dict[str, int]):
+    # Instancia dos parametros
+    max_time = parameters["tempo_maximo"]
+    temperatura_inicial = parameters["temperatura_inicial"]
+    temperatura_final = parameters["temperatura_final"]
+
     # Instancia inicial, que e uma solucao aleatoria
-    solution = sample(range(0, len(nodes)), len(nodes))
-    last_solution = solution
+    # Adiciona o primeiro elemento no final para fechar o ciclo
+    solution_order = sample(range(0, len(nodes)), len(nodes))
+
+    best_solution_order = solution_order.copy()
+    best_solution_time = 0
+
+    current_solution_order = solution_order.copy()
 
     # Instancia maxima de tempo
-    t = 0
-    temperatura = funcao_tempo_temperatura(t, max_t)
+    time = 0
+    temperatura = funcao_tempo_temperatura(
+        time, max_time, temperatura_inicial, temperatura_final
+    )
 
-    while temperatura != 0 and t < max_t:
+    while not (isclose(temperatura, 0, rtol=1e-3)) and time < max_time:
         # Calcula a temperatura
-        temperatura = funcao_tempo_temperatura(t, max_t)
+        temperatura = funcao_tempo_temperatura(
+            time, max_time, temperatura_inicial, temperatura_final
+        )
 
         # Se a temperatura for 0, encerra o loop
-        if isclose(temperatura, 0, rel_tol=1e-3):
+        if isclose(temperatura, 0, rtol=1e-3):
             break
 
-        # Constroi uma nova solucao (sucessor) aleatoria
-        temp_solution = last_solution.copy()
-        p1, p2 = sample(range(len(nodes)), 2)
-        temp_solution[p1], temp_solution[p2] = (
-            temp_solution[p2],
-            temp_solution[p1],
-        )
+        # Constroi uma nova solucao (sucessor) aleatoria, onde todos os elementos sao trocados exceto o primeiro e o ultimo
+        temp_solution = sample(range(0, len(nodes)), len(nodes))
 
         # Calcula delta da funcao objetivo
         delta = funcao_objetivo(nodes, temp_solution) - funcao_objetivo(
-            nodes, last_solution
+            nodes, current_solution_order
         )
 
         # Calcula a probabilidade de aceitar a nova solucao
-        probabilidade = exp(delta / temperatura)
+        probabilidade = exp(-delta / temperatura)
 
-        if delta <= 0 or probabilidade > random():
+        if delta < 0 or probabilidade > random():
             # Se a solucao e melhor OU a probabilidade e maior que um numero aleatorio
-            last_solution = temp_solution.copy()
+            current_solution_order = temp_solution.copy()
+            current_solution_time = time
+            
+        sum_of_current_solution = get_total_distance(nodes, current_solution_order)
+        sum_of_best_solution = get_total_distance(nodes, best_solution_order)
+        
+        if sum_of_current_solution < sum_of_best_solution:
+            best_solution_order = current_solution_order.copy()
+            best_solution_time = time
 
-        t += 1
+        time += 1
 
-    formal_solution = formalize_solution(nodes, last_solution)
-    return (formal_solution, t)
+    return (best_solution_order, best_solution_time)

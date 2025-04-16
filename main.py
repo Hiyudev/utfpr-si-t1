@@ -1,16 +1,17 @@
 import sys
 from libs import tsp
-from libs.tempera import tempera_simulada
-from libs.visual import visualize_graph, visualize_table, clear_tables
 from libs.genetico import algoritmo_genetico
-
+from libs.visual import clear_tables, visualize_table
+from libs.tempera import tempera_simulada
 
 def tempera():
-    VISUALIZE = False
     REPEATED_TIME = 100
-    LIMIT_DATA = (
-        -1
-    )  # -1 para pegar todos os dados, n (numero natural qualquer) pega os primeiros n dados
+    LIMIT_DATA = 1  # -1 para pegar todos os dados, n (numero natural qualquer) pega os primeiros n dados
+    TEMPERA_PARAMETERS = {
+        "temperatura_inicial": 1000,
+        "temperatura_final": 0,
+        "tempo_maximo": 100,
+    }
 
     tsp_datas = tsp.import_all_tsp_data("./assets", LIMIT_DATA)
     best_datas = tsp.import_all_tsp_solutions("./assets")
@@ -22,23 +23,17 @@ def tempera():
         tsp_graph, tsp_data = tsp_info
         tsp_solution = best_datas[tsp_name]
 
-        solutions: list[tuple[list[tsp.Node], int]] = []
+        solutions: list[tuple[list[int], int]] = []
         for i in range(REPEATED_TIME):
-            MAXIMUM_ITERATIONS = len(tsp_data)
-            solution = tempera_simulada(tsp_data, MAXIMUM_ITERATIONS)
+            solution = tempera_simulada(tsp_data, TEMPERA_PARAMETERS)
             solutions.append(solution)
 
         # Visualiza as soluções
         # Como a solucao, alem de ter o caminho, tem o tempo tambem, entao é adicionado "Tempo" na tabela
-        visualize_table(tsp_name, solutions, tsp_solution, ["Tempo"])
-
-        if VISUALIZE:
-            for j in range(REPEATED_TIME):
-                visualize_graph(tsp_graph, solutions[j][0])
+        visualize_table(tsp_name, tsp_data, solutions, tsp_solution, ["Tempo"])
 
 
 def genetico():
-    VISUALIZE = False
     REPEATED_TIME = 100
     GENERATIONS = 100
     GENERATIONS_SIZE = 10
@@ -59,39 +54,44 @@ def genetico():
         melhor_custo = -1
 
         for i in range(REPEATED_TIME):
-            solution, caminho, custo, geracao = algoritmo_genetico(tsp_data, GENERATIONS_SIZE, GENERATIONS)
+            caminho, custo, geracao = algoritmo_genetico(
+                tsp_data, GENERATIONS_SIZE, GENERATIONS
+            )
 
             if custo < melhor_custo or melhor_custo == -1:
                 melhor_custo = custo
                 melhor_iteracao = i
                 melhor_caminho = caminho
-            
-            # Novas colunas para o csv 
-            solutions.append((solution,
-                              REPEATED_TIME,
-                              GENERATIONS,
-                              GENERATIONS_SIZE,
-                             " -> ".join(map(str, caminho)), 
-                             custo, 
-                             geracao))
-            
-            extra_headers = ["Número de execuções do algoritmo", 
-                             "Número de gerações executadas", 
-                             "Tamanho de cada geração",
-                             "Caminho da solução encontrada", 
-                             "Custo da solução", 
-                             "Geração em que a melhor solução foi encontrada"]
 
-        # 
-        print(f"Melhor custo encontrado: {melhor_custo} na execução de número {melhor_iteracao}.")
+            # Novas colunas para o csv
+            solutions.append(
+                (
+                    caminho,
+                    REPEATED_TIME,
+                    GENERATIONS,
+                    GENERATIONS_SIZE,
+                    " -> ".join(map(str, caminho)),
+                    custo,
+                    geracao,
+                )
+            )
+
+            extra_headers = [
+                "Número de execuções do algoritmo",
+                "Número de gerações executadas",
+                "Tamanho de cada geração",
+                "Caminho da solução encontrada",
+                "Custo da solução",
+                "Geração em que a melhor solução foi encontrada",
+            ]
+
+        #
+        print(
+            f"Melhor custo encontrado: {melhor_custo} na execução de número {melhor_iteracao}."
+        )
 
         # Visualiza as soluções
         visualize_table(tsp_name, solutions, tsp_solution, headers=extra_headers)
-
-        if VISUALIZE:
-            for j in range(REPEATED_TIME):
-                visualize_graph(tsp_graph, solutions[j])
-
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

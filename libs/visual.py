@@ -1,7 +1,8 @@
-from libs.tsp import Node
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
+from libs.utils import get_weights
+
 
 def clear_tables():
     """
@@ -20,13 +21,14 @@ def clear_tables():
 
 def visualize_table(
     name,
-    solutions: list[tuple[list[Node]]],
+    nodes: list[list[int]],
+    solutions: list[tuple[list[int], int]],
     best_solution: int,
     headers: list[str] = [],
 ) -> None:
     """
-    Visualizes a table of solutions for the TSP problem.
-    Each row represents a solution, and each column represents a node in the solution path.
+    #Visualizes a table of solutions for the TSP problem.
+    #Each row represents a solution, and each column represents a node in the solution path.
     """
 
     # Prepare table data
@@ -34,20 +36,7 @@ def visualize_table(
     for solution_data in solutions:
         solution = solution_data[0]
 
-        weights: list[float] = []
-        
-        for i in range(len(solution) - 1):
-            node = solution[i]
-            next_node = solution[i + 1]
-            node_next_weight_index = -1
-
-            for j, neighbor in enumerate(node.neighbors):
-                if neighbor == next_node:
-                    node_next_weight_index = j
-                    break
-
-            neighbor, weight = node.neighbors[node_next_weight_index]
-            weights.append(weight)
+        weights: list[float] = get_weights(nodes, solution)
 
         num_nodes = len(solution)
         sum_weights = sum(weights)
@@ -88,47 +77,3 @@ def visualize_table(
     df.to_csv(f"./output/{name}_data.csv", index=False)
 
     print(f"Dados para o problema {name} salvos em {name}_data.csv")
-
-
-def visualize_graph(graph: nx.Graph, solution: list[Node]):
-    """
-    Visualiza a solucao do problema do caixeiro viajante
-    """
-
-    vanity_graph = nx.Graph()
-    for i, node in enumerate(graph.nodes()):
-        vanity_graph.add_node(i)
-
-    for i, node in enumerate(graph.nodes()):
-        closest_nodes = sorted(
-            graph.neighbors(node), key=lambda x: graph[node][x]["weight"]
-        )
-
-        for j in range(1, len(closest_nodes)):
-            # Verifica se o no sao os mesmos
-            if closest_nodes[j] == node:
-                continue
-
-            vanity_graph.add_edge(
-                i, closest_nodes[j], weight=graph[node][closest_nodes[j]]["weight"]
-            )
-
-    pos = nx.spring_layout(vanity_graph, scale=50)
-
-    plt.figure()
-    plt.title("TSP Solution")
-
-    visualizing_nodes: list[Node] = [node.id for node in solution]
-    mapped_edge_list = list(nx.utils.pairwise(visualizing_nodes))
-
-    nx.draw_networkx_edges(vanity_graph, pos, edge_color="blue", width=0.2)
-    nx.draw_networkx(
-        graph,
-        pos,
-        with_labels=True,
-        edgelist=mapped_edge_list,
-        edge_color="red",
-        width=1,
-    )
-
-    plt.show()
