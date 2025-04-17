@@ -1,8 +1,11 @@
 import sys
+import os
 from libs import tsp
 from libs.genetico import algoritmo_genetico
 from libs.visual import clear_tables, visualize_table
 from libs.tempera import tempera_simulada
+
+os.makedirs("logs", exist_ok=True)
 
 def tempera():
     REPEATED_TIME = 100
@@ -91,7 +94,7 @@ def genetico():
         )
 
         # Visualiza as soluções
-        visualize_table(tsp_name, solutions, tsp_solution, headers=extra_headers)
+        visualize_table(tsp_name, tsp_data, solutions, tsp_solution, headers=extra_headers)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
