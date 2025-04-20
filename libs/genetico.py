@@ -21,10 +21,14 @@ def seleciona_pais(probs):
 
 
 def func_reproducao(
-    nodes: list[list[int]], ordem_s1: list[int], ordem_s2: list[int]
+    nodes: list[list[int]], ordem_s1: list[int], ordem_s2: list[int], corte: bool
 ) -> tuple[list[int], float]:
     # Ordem se refere a ordem de visita das cidades - uma parte da solucao (ordem, custo)
-    ponto_cruzamento = randint(1, len(ordem_s1) - 1)
+    if corte:
+        ponto_cruzamento = randint(1, len(ordem_s1) - 1)
+    else:
+        ponto_cruzamento = len(ordem_s1) // 2
+
     nova_ordem = ordem_s1[:ponto_cruzamento]
 
     for cidade in ordem_s2:
@@ -45,7 +49,7 @@ def mutacao(nodes: list[list[int]], solucao: tuple[list[int], float]):
 
 
 def crossover(
-    nodes: list[list[int]], geracao: list[tuple[list[int], float]], probs: list
+    nodes: list[list[int]], geracao: list[tuple[list[int], float]], probs: list, corte: bool
 ):
     nova_geracao: list[tuple[list[int], float]] = []
     for i in range(len(geracao)):
@@ -56,7 +60,7 @@ def crossover(
         ordem_s2 = geracao[indices_escolhidos[1]][0]
 
         nova_solucao: tuple[list[int], float] = func_reproducao(
-            nodes, ordem_s1, ordem_s2
+            nodes, ordem_s1, ordem_s2, corte
         )
 
         if randint(1, 100) == 1:
@@ -68,7 +72,7 @@ def crossover(
     return nova_geracao
 
 
-def algoritmo_genetico(nodes: list[list[int]], tam_populacao: int, n_geracoes: int):
+def algoritmo_genetico(nodes: list[list[int]], tam_populacao: int, n_geracoes: int, corte: bool):
     n_cidades = len(nodes)
     populacao_inicial: list[tuple[list[int], float]] = []
 
@@ -92,7 +96,7 @@ def algoritmo_genetico(nodes: list[list[int]], tam_populacao: int, n_geracoes: i
     # Gerações são um conjunto de tam_populacao de soluções
     for i in range(n_geracoes):
         probabilidades = funcao_adaptacao(geracao)
-        nova_geracao = crossover(nodes, geracao, probabilidades)
+        nova_geracao = crossover(nodes, geracao, probabilidades, corte)
 
         melhor_geracao = min(geracao, key=lambda x: x[1])
 

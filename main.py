@@ -1,12 +1,13 @@
 import sys
 import csv
 import numpy as np
-from os import listdir
+from os import listdir, makedirs
 from libs import tsp
 from libs.genetico import algoritmo_genetico
 from libs.visual import clear_tables, visualize_table
 from libs.tempera import tempera_simulada
 
+makedirs("logs", exist_ok=True)
 
 def tempera():
     REPEATED_TIME = 100
@@ -43,6 +44,7 @@ def genetico():
     REPEATED_TIME = 100
     GENERATIONS = 100
     GENERATIONS_SIZE = 10
+    CORTE_RANDOM = True
     LIMIT_DATA = 2  # -1 para pegar todos os dados, n (numero natural qualquer) pega os primeiros n dados
 
     tsp_datas = tsp.import_all_tsp_data("./assets", LIMIT_DATA)
@@ -60,44 +62,28 @@ def genetico():
         melhor_custo = -1
 
         for i in range(REPEATED_TIME):
-            caminho, custo, geracao = algoritmo_genetico(
-                tsp_data, GENERATIONS_SIZE, GENERATIONS
+            caminho, custo, i_geracao = algoritmo_genetico(
+                tsp_data, GENERATIONS_SIZE, GENERATIONS, CORTE_RANDOM
             )
 
             if custo < melhor_custo or melhor_custo == -1:
                 melhor_custo = custo
                 melhor_iteracao = i
-                melhor_caminho = caminho
 
             # Novas colunas para o csv
             solutions.append(
                 (
                     caminho,
-                    REPEATED_TIME,
-                    GENERATIONS,
-                    GENERATIONS_SIZE,
-                    " -> ".join(map(str, caminho)),
-                    custo,
-                    geracao,
+                    i_geracao
                 )
             )
 
-            extra_headers = [
-                "Número de execuções do algoritmo",
-                "Número de gerações executadas",
-                "Tamanho de cada geração",
-                "Caminho da solução encontrada",
-                "Custo da solução",
-                "Geração em que a melhor solução foi encontrada",
-            ]
-
-        #
         print(
             f"Melhor custo encontrado: {melhor_custo} na execução de número {melhor_iteracao}."
         )
 
         # Visualiza as soluções
-        visualize_table(tsp_name, solutions, tsp_solution, headers=extra_headers)
+        visualize_table(tsp_name, tsp_data, solutions, tsp_solution, headers=["Geração em que a melhor solução foi encontrada"])
 
 
 def analyse():
