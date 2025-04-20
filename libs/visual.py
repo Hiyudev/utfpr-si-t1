@@ -46,7 +46,6 @@ def visualize_table(
         if is_first_last_equal:
             solution_set_length += 1
 
-        had_repeated_nodes = len(solution) != is_first_last_equal
         # Calcula a porcentagem em relacao a melhor solucao, quanto menor, melhor (sendo 0, é igual a melhor solucao)
         percentage_of_best = ((sum_weights - best_solution) / best_solution) * 100
 
@@ -56,8 +55,6 @@ def visualize_table(
             [
                 num_nodes,
                 sum_weights,
-                had_repeated_nodes,
-                is_first_last_equal,
                 percentage_of_best,
                 *other_data,
             ]
@@ -66,8 +63,6 @@ def visualize_table(
     column_labels = [
         "Numero de nos",
         "Soma dos pesos",
-        "Houve nos repetidos?",
-        "O primeiro e o ultimo no sao iguais?",
         "Porcentagem em relacao a melhor solucao (em %)",
         *headers,
     ]

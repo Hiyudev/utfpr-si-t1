@@ -1,16 +1,22 @@
 import sys
+import csv
+import numpy as np
+from os import listdir
 from libs import tsp
 from libs.genetico import algoritmo_genetico
 from libs.visual import clear_tables, visualize_table
 from libs.tempera import tempera_simulada
 
+
 def tempera():
     REPEATED_TIME = 100
-    LIMIT_DATA = 1  # -1 para pegar todos os dados, n (numero natural qualquer) pega os primeiros n dados
+    LIMIT_DATA = (
+        -1
+    )  # -1 para pegar todos os dados, n (numero natural qualquer) pega os primeiros n dados
     TEMPERA_PARAMETERS = {
-        "temperatura_inicial": 1000,
+        "temperatura_inicial": 10,
         "temperatura_final": 0,
-        "tempo_maximo": 100,
+        "tempo_maximo": 5000,
     }
 
     tsp_datas = tsp.import_all_tsp_data("./assets", LIMIT_DATA)
@@ -93,6 +99,60 @@ def genetico():
         # Visualiza as soluções
         visualize_table(tsp_name, solutions, tsp_solution, headers=extra_headers)
 
+
+def analyse():
+    # Pega todos os arquivos dentro do diretório "output"
+    files = listdir("./output")
+
+    # Cria uma lista com os nomes dos arquivos
+    tsp_names = [file.split("_")[0] for file in files if file.endswith(".csv")]
+
+    mean_porcentages = []
+    mean_times = []
+
+    for index, file in enumerate(files):
+        tsp_name = tsp_names[index]
+
+        weights = []
+        porcentages = []
+        tempo = []
+
+        with open(f"./output/{file}", "r") as csv_file:
+            reader = csv.reader(csv_file)
+
+            for row in reader:
+                is_header = "Numero de nos" in row[0]
+                if is_header:
+                    continue
+
+                weights.append(int(row[1]))
+                porcentages.append(float(row[2]))
+                tempo.append(int(row[3]))
+
+        minimum_weight = np.min(weights)
+        mean_weight = np.mean(weights)
+        maximum_weight = np.max(weights)
+
+        mean_porcentage = np.mean(porcentages)
+        mean_time = np.mean(tempo)
+
+        mean_porcentages.append(mean_porcentage)
+        mean_times.append(mean_time)
+
+        print(f"Problema {tsp_name}")
+        print(f"Menor peso: {minimum_weight}")
+        print(f"Média de peso: {mean_weight}")
+        print(f"Maior peso: {maximum_weight}")
+        print(f"Média de porcentagem: {mean_porcentage}")
+        print(f"Média de tempo: {mean_time}")
+        print("\n")
+
+    print("Resultados gerais")
+    print(f"Média de porcentagem: {np.mean(mean_porcentages)}")
+    print(f"Média de tempo: {np.mean(mean_times)}")
+    print("\n")
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         arg = sys.argv[1]
@@ -100,7 +160,9 @@ if __name__ == "__main__":
             genetico()
         elif arg == "t":
             tempera()
+        elif arg == "a":
+            analyse()
         else:
-            print("Argumento inválido. Use 'g' ou 't'.")
+            print("Argumento inválido. Use 'g', 't' ou 'a'.")
     else:
-        print("Argumento inválido. Use 'g' ou 't'.")
+        print("Argumento inválido. Use 'g', 't' ou 'a'.")

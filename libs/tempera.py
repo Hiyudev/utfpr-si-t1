@@ -63,8 +63,11 @@ def tempera_simulada(nodes: list[list[int]], parameters: dict[str, int]):
         if isclose(temperatura, 0, rtol=1e-3):
             break
 
-        # Constroi uma nova solucao (sucessor) aleatoria, onde todos os elementos sao trocados exceto o primeiro e o ultimo
-        temp_solution = sample(range(0, len(nodes)), len(nodes))
+        # Faz uma copia da solucao atual
+        temp_solution = current_solution_order.copy()
+        # Troca dois elementos aleatorios
+        i, j = sample(range(0, len(nodes)), 2)
+        temp_solution[i], temp_solution[j] = (temp_solution[j], temp_solution[i])
 
         # Calcula delta da funcao objetivo
         delta = funcao_objetivo(nodes, temp_solution) - funcao_objetivo(
@@ -78,10 +81,10 @@ def tempera_simulada(nodes: list[list[int]], parameters: dict[str, int]):
             # Se a solucao e melhor OU a probabilidade e maior que um numero aleatorio
             current_solution_order = temp_solution.copy()
             current_solution_time = time
-            
-        sum_of_current_solution = get_total_distance(nodes, current_solution_order)
-        sum_of_best_solution = get_total_distance(nodes, best_solution_order)
-        
+
+        sum_of_current_solution = funcao_objetivo(nodes, current_solution_order)
+        sum_of_best_solution = funcao_objetivo(nodes, best_solution_order)
+
         if sum_of_current_solution < sum_of_best_solution:
             best_solution_order = current_solution_order.copy()
             best_solution_time = time
